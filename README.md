@@ -1,20 +1,15 @@
-# ProofVault demo
+ProofVault — Blockchain-Based Document Verification & Tamper Detection**
 
-## Run (2 minutes)
-1. Install Node.js 18+ from nodejs.org
-2. In this folder: npm install, then npm start
-3. Open http://localhost:5000
+ProofVault is a document verification platform that uses **SHA-256 cryptographic hashing** and blockchain-based record anchoring to detect document tampering and verify the integrity of digital credentials.
 
-## Demo files (demo/ folder)
-- alex_mercer_diploma.pdf         genuine, pre-anchored when the server starts
-- alex_mercer_diploma_FORGED.pdf  same diploma with CGPA changed 8.7 -> 9.7
+It provides:
+- 🔐 SHA-256 document fingerprinting
+- 📄 Document issuance and registration
+- 🔍 Authenticity and tamper verification
+- 🧪 **“What Changed?”** tamper detection
+- 📱 QR-based document verification
+- 🚫 Credential revocation
+- 🧾 Verification history and record lookup
+- ⛓️ Blockchain-ready verification architecture
 
-## 5-minute evaluator walkthrough
-1. Overview: drag the 3D vault to rotate it.
-2. Tamper Lab: change 8.7 to 9.7, watch the hash break.
-3. QR Scanner: drop alex_mercer_diploma.pdf -> AUTHENTIC.
-4. QR Scanner: drop alex_mercer_diploma_FORGED.pdf -> TAMPERED (audit alert raised).
-5. Issuer Portal: anchor any new file (name + file), see the QR code, then verify that file in the scanner.
-6. Issuer Portal: counters now include the new record and the tamper alert.
-
-Ledger is simulated and saved to ledger.json. Delete it to reset the demo.
+Core idea: Don't Trust the Document. Verify It.
