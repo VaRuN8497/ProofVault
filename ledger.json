@@ -1,0 +1,60 @@
+{
+  "records": {
+    "7cfce00503784806b56cccfed62762eaec0a1a7343d8ac2e508229f446e8edd9": {
+      "proofVaultId": "PV-7CFCE005",
+      "docHash": "7cfce00503784806b56cccfed62762eaec0a1a7343d8ac2e508229f446e8edd9",
+      "recipientName": "Alex Mercer",
+      "credentialType": "B.S. Computer Science Diploma",
+      "issuerName": "Royal Tech University Registrar",
+      "fileName": "alex_mercer_diploma.pdf",
+      "txHash": "0x527727d942c44c07955bfb27681989e3c37de6fd9d90eedf94b3d03dd4af7155",
+      "blockNumber": 4192802,
+      "issuedAt": "2026-10-07T06:51:31.921Z",
+      "revoked": false
+    }
+  },
+  "alerts": 3,
+  "block": 4192802,
+  "activity": [
+    {
+      "time": "2026-10-07T08:48:46.632Z",
+      "status": "TAMPERED_HASH_MISMATCH",
+      "hash": "fcdc11a836100df2d6236c4db7101a3fee3583b856837bb31fd4fafa478150d8"
+    },
+    {
+      "time": "2026-10-07T08:48:20.034Z",
+      "status": "AUTHENTIC",
+      "hash": "7cfce00503784806b56cccfed62762eaec0a1a7343d8ac2e508229f446e8edd9"
+    },
+    {
+      "time": "2026-10-07T08:48:15.633Z",
+      "status": "AUTHENTIC",
+      "hash": "7cfce00503784806b56cccfed62762eaec0a1a7343d8ac2e508229f446e8edd9"
+    },
+    {
+      "time": "2026-10-07T08:48:12.659Z",
+      "status": "TAMPERED_HASH_MISMATCH",
+      "hash": "fcdc11a836100df2d6236c4db7101a3fee3583b856837bb31fd4fafa478150d8"
+    },
+    {
+      "time": "2026-10-07T08:48:12.649Z",
+      "status": "AUTHENTIC",
+      "hash": "7cfce00503784806b56cccfed62762eaec0a1a7343d8ac2e508229f446e8edd9"
+    },
+    {
+      "time": "2026-10-07T08:48:10.704Z",
+      "status": "TAMPERED_HASH_MISMATCH",
+      "hash": "fcdc11a836100df2d6236c4db7101a3fee3583b856837bb31fd4fafa478150d8"
+    },
+    {
+      "time": "2026-10-07T08:48:02.576Z",
+      "status": "AUTHENTIC",
+      "hash": "7cfce00503784806b56cccfed62762eaec0a1a7343d8ac2e508229f446e8edd9"
+    },
+    {
+      "time": "2026-10-07T08:47:43.668Z",
+      "status": "AUTHENTIC",
+      "hash": "7cfce00503784806b56cccfed62762eaec0a1a7343d8ac2e508229f446e8edd9"
+    }
+  ]
+}

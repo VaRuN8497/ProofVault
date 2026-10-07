@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="color-scheme" content="light">
+<title>ProofVault — Verifying Beyond Boundaries</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,500;0,9..144,800;1,9..144,500&family=Plus+Jakarta+Sans:wght@500;700;800&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#F1ECE1;--card:#FCFAF6;--em-d:#064E3B;--em:#047857;--em-a:#059669;--mint:#ECFDF5;--gold:#C5A059;--ink:#0B2418;--sub:#2D4A3E;--mut:#647B70;--line:rgba(6,78,59,.14);--red:#B91C1C;--redbg:#FEF2F2;
+--serif:'Fraunces',Georgia,serif;--sans:'Plus Jakarta Sans',system-ui,sans-serif;--mono:'JetBrains Mono',ui-monospace,monospace;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--sans);color:var(--ink);background:var(--bg) radial-gradient(70% 50% at 50% 0,#E8DFC8,transparent 70%);min-height:100vh;padding:20px;display:flex;justify-content:center}
+button{font:inherit;cursor:pointer}
+:focus-visible{outline:3px solid var(--em-a);outline-offset:2px}
+#motes{position:fixed;inset:0;width:100%;height:100%;pointer-events:none;opacity:.5}
+.frame{position:relative;width:1180px;max-width:100%;background:var(--card);border:1px solid var(--line);border-radius:28px;box-shadow:0 40px 90px -30px rgba(11,36,24,.25),inset 0 1px 2px #fff;overflow:hidden;display:flex;flex-direction:column}
+.beam{position:absolute;top:-30px;right:12%;width:520px;height:760px;background:radial-gradient(ellipse 60% 100% at 50% 0,#fff 0,rgba(236,253,245,.75) 22%,rgba(254,240,170,.28) 50%,transparent 78%);clip-path:polygon(34% 0,66% 0,100% 100%,0 100%);filter:blur(12px);pointer-events:none;animation:br 7s ease-in-out infinite alternate}
+@keyframes br{to{opacity:.65;transform:scaleX(1.06)}}
+nav{position:relative;z-index:5;display:flex;align-items:center;justify-content:space-between;gap:12px;padding:22px 36px 8px;flex-wrap:wrap}
+.brand{display:flex;gap:10px;align-items:center;font:800 1.4rem var(--serif);color:var(--em-d);letter-spacing:-.02em;background:none;border:0}
+.pills{display:flex;gap:2px;background:rgba(6,78,59,.06);padding:4px;border-radius:99px;flex-wrap:wrap}
+.pills button{border:0;background:none;padding:8px 16px;border-radius:99px;font-weight:700;font-size:.84rem;color:var(--mut);transition:.2s}
+.pills button:hover{color:var(--em-d)}
+.pills button[aria-selected=true]{background:#fff;color:var(--em-d);box-shadow:0 2px 8px rgba(6,78,59,.12)}
+.ghost{background:#fff;border:1px solid var(--line);border-radius:99px;padding:9px 20px;font-weight:700;font-size:.84rem;color:var(--em-d)}
+.ghost:hover{background:var(--mint)}
+main{position:relative;z-index:4;min-height:560px;padding:12px 44px 28px}
+.view{display:none}.view.on{display:block;animation:in .45s ease}
+@keyframes in{from{opacity:0;transform:translateY(8px)}}
+/* hero */
+.hero{display:grid;grid-template-columns:1fr 1fr;align-items:center;min-height:520px;gap:10px}
+.badge{display:inline-block;background:var(--mint);color:var(--em);border:1px solid rgba(4,120,87,.2);padding:5px 14px;border-radius:99px;font-size:.78rem;font-weight:800;margin-bottom:22px}
+h1{font:800 clamp(2.4rem,5.4vw,3.9rem)/1.05 var(--serif);letter-spacing:-.035em;color:var(--em-d);font-variation-settings:"opsz" 144}
+h1 em{font-weight:500;color:var(--em-a)}
+.lead{color:var(--sub);line-height:1.65;max-width:440px;margin:20px 0 30px;font-weight:500}
+.cta{display:inline-flex;gap:10px;align-items:center;padding:14px 28px;border-radius:14px;border:1px solid rgba(255,255,255,.35);color:#fff;font-weight:800;background:linear-gradient(135deg,var(--em),var(--em-d));box-shadow:0 10px 28px rgba(4,120,87,.38),inset 0 1px 1px rgba(255,255,255,.4);transition:.3s cubic-bezier(.16,1,.3,1)}
+.cta:hover{transform:translateY(-2px);box-shadow:0 16px 36px rgba(4,120,87,.5)}
+/* 3D stage */
+.stage{position:relative;height:500px;perspective:1400px;cursor:grab;touch-action:none;user-select:none}
+.stage:active{cursor:grabbing}
+.floor{position:absolute;left:-5%;right:-5%;bottom:-40px;height:340px;background:linear-gradient(rgba(5,150,105,.22) 1px,transparent 1px) 0 0/44px 44px,linear-gradient(90deg,rgba(5,150,105,.22) 1px,transparent 1px) 0 0/44px 44px;transform:perspective(500px) rotateX(70deg);-webkit-mask:radial-gradient(ellipse at 50% 55%,#000 15%,transparent 70%);mask:radial-gradient(ellipse at 50% 55%,#000 15%,transparent 70%)}
+.rig{position:absolute;left:50%;top:50%;width:0;height:0;transform-style:preserve-3d}
+.tile{position:absolute;width:230px;height:150px;margin:-75px 0 0 -115px;transform-style:preserve-3d}
+.slab{position:absolute;inset:0;border-radius:24px}
+.top{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;border:1.5px solid rgba(255,255,255,.7);font-weight:800;font-size:.7rem;letter-spacing:.08em;text-transform:uppercase;box-shadow:inset 0 2px 6px rgba(255,255,255,.8),inset 0 -6px 12px rgba(6,78,59,.2)}
+.top::after{content:"";position:absolute;inset:0;border-radius:inherit;background:linear-gradient(115deg,rgba(255,255,255,.55) 0,transparent 38%);pointer-events:none}
+.t1 .top{background:linear-gradient(135deg,#A7F3D0,#10B981 55%,#047857);color:#fff}
+.t2 .top{background:linear-gradient(135deg,#fff,#F5F2EB 60%,#E6DEC9);color:var(--em-d);border-color:rgba(197,160,89,.5)}
+.t3 .top{background:linear-gradient(135deg,#059669,#047857 50%,#064E3B);color:#fff}
+.shadow{position:absolute;width:230px;height:150px;margin:-75px 0 0 -115px;border-radius:30px;background:rgba(6,50,35,.22);filter:blur(22px)}
+.hint{position:absolute;bottom:6px;left:0;right:0;text-align:center;font-size:.75rem;color:var(--mut);font-weight:700}
+/* features */
+.feats{display:grid;grid-template-columns:repeat(3,1fr);gap:28px;padding:22px 44px;border-top:1px solid var(--line);position:relative;z-index:4;background:rgba(6,78,59,.025)}
+.feats h3{font:700 1.05rem var(--serif);color:var(--em-d);margin-bottom:4px}
+.feats p{font-size:.82rem;color:var(--mut);line-height:1.5}
+/* panels */
+h2{font:800 clamp(1.8rem,3.6vw,2.6rem)/1.1 var(--serif);color:var(--em-d);letter-spacing:-.03em;margin:6px 0 8px}
+.sub{color:var(--sub);max-width:600px;line-height:1.6;margin-bottom:22px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+.panel{background:#fff;border:1.5px solid var(--line);border-radius:18px;padding:22px;transition:border-color .3s,box-shadow .3s}
+.panel.ok{border-color:rgba(4,120,87,.45)}.panel.bad{border-color:rgba(185,28,28,.5);box-shadow:0 0 0 4px rgba(185,28,28,.07)}
+.row{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;gap:8px}
+.tag{font-size:.75rem;font-weight:800;padding:3px 10px;border-radius:99px;background:var(--mint);color:var(--em)}
+.tag.bad{background:var(--redbg);color:var(--red)}
+label{font-size:.78rem;font-weight:800;color:var(--mut);display:block;margin-bottom:4px}
+input[type=text]{width:100%;padding:10px 12px;border:1.5px solid var(--line);border-radius:10px;font:600 1.1rem var(--serif);color:var(--em-d);background:var(--card)}
+.hash{font:500 .74rem/1.7 var(--mono);word-break:break-all;background:var(--mint);color:var(--em);padding:10px 12px;border-radius:10px;margin-top:12px}
+.hash b{background:#FECACA;color:var(--red);font-weight:500;border-radius:2px}
+.verdict{margin-top:16px;padding:14px 18px;border-radius:12px;font-weight:700;font-size:.9rem;background:var(--mint);color:var(--em-d)}
+.verdict.bad{background:var(--redbg);color:#991B1B}
+.drop{display:block;text-align:center;border:2px dashed rgba(4,120,87,.4);border-radius:20px;padding:34px;background:#fff;max-width:480px;transition:.2s}
+.drop.over,.drop:hover{background:var(--mint);transform:translateY(-2px)}
+.kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:18px}
+.kpi{background:#fff;border:1px solid var(--line);border-radius:14px;padding:16px}
+.kpi small{font-size:.74rem;font-weight:800;color:var(--mut)}
+.kpi div{font:800 2rem var(--serif);color:var(--em-d)}
+.kpi.r div{color:var(--red)}.kpi.g div{color:#8A6A1F}
+.list{margin-top:14px;display:grid;gap:8px}
+.rec{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;background:#fff;border:1px solid var(--line);border-radius:12px;padding:10px 14px;font-size:.84rem;animation:in .4s}
+.rec code{font:500 .72rem var(--mono);color:var(--em)}
+.mini{display:flex;gap:10px;flex-wrap:wrap}.mini input{flex:1;min-width:200px;font:600 .95rem var(--sans)}
+.sec{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+.sec .panel h3{font:700 1.15rem var(--serif);color:var(--em-d);margin-bottom:6px}.sec p{font-size:.86rem;line-height:1.6;color:var(--sub)}
+.band{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin:18px 0 64px;padding:26px;background:var(--em-d);border-radius:22px;color:#fff;box-shadow:0 20px 40px -18px rgba(6,78,59,.6)}
+.band div{text-align:center}.band b{display:block;font:800 2.4rem var(--serif);color:#F3E3B5}.band span{font-size:.82rem;opacity:.8}
+.sec-h{margin:0 0 26px}.sec-h p{color:var(--sub);max-width:560px;line-height:1.6}
+.steps{display:grid;grid-template-columns:repeat(4,1fr);gap:18px;margin-bottom:70px;position:relative}
+.steps::before{content:"";position:absolute;left:8%;right:8%;top:26px;height:2px;background:linear-gradient(90deg,var(--gold),var(--em-a));opacity:.5}
+.step{position:relative;background:#fff;border:1px solid var(--line);border-radius:18px;padding:60px 18px 20px;transition:transform .3s,box-shadow .3s}
+.step:hover{transform:translateY(-6px) rotateX(4deg);box-shadow:0 22px 34px -18px rgba(6,78,59,.35)}
+.step i{position:absolute;top:8px;left:18px;width:38px;height:38px;border-radius:50%;background:linear-gradient(135deg,var(--em),var(--em-d));color:#fff;display:grid;place-items:center;font:800 1rem var(--serif);font-style:normal;box-shadow:0 6px 14px rgba(4,120,87,.4)}
+.step h3,.uc h3{font:700 1.1rem var(--serif);color:var(--em-d);margin-bottom:6px}.step p,.uc p{font-size:.84rem;line-height:1.55;color:var(--sub)}
+.ucs{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:70px;perspective:900px}
+.uc{background:linear-gradient(160deg,#fff,var(--mint));border:1px solid var(--line);border-radius:18px;padding:22px;transition:transform .35s cubic-bezier(.16,1,.3,1);transform-style:preserve-3d}
+.uc:hover{transform:rotateY(-6deg) rotateX(4deg) translateZ(10px)}
+.faq{max-width:760px;margin-bottom:60px}
+details{background:#fff;border:1px solid var(--line);border-radius:14px;padding:14px 18px;margin-bottom:10px}
+summary{font:700 1rem var(--serif);color:var(--em-d);cursor:pointer}details p{margin-top:8px;font-size:.88rem;line-height:1.6;color:var(--sub)}
+.bigcta{text-align:center;padding:44px 20px;border-radius:24px;background:radial-gradient(80% 120% at 50% 0,#fff,var(--mint));border:1px solid var(--line);margin-bottom:34px}
+.bigcta h2{margin-top:0}
+.sbox{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:16px}.sbox input{flex:1;min-width:240px;font:500 .9rem var(--mono)}
+table{width:100%;border-collapse:collapse;font-size:.82rem;margin-top:10px}td,th{padding:8px 10px;border-bottom:1px solid var(--line);text-align:left}th{color:var(--mut);font-weight:800}
+.pill{padding:2px 10px;border-radius:99px;font-weight:800;font-size:.72rem;background:var(--mint);color:var(--em)}.pill.bad{background:var(--redbg);color:var(--red)}
+.mini .sm{padding:5px 12px;font-size:.74rem}
+@media(max-width:900px){.band,.steps,.ucs{grid-template-columns:1fr 1fr}.steps::before{display:none}}
+@media(max-width:900px){main{padding:12px 20px 24px}.hero,.grid2,.sec,.feats{grid-template-columns:1fr}.kpis{grid-template-columns:1fr 1fr}.stage{height:420px}.beam{display:none}nav{padding:18px 20px 6px}.feats{padding:20px}}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<canvas id="motes" aria-hidden="true"></canvas>
+<div class="frame">
+<div class="beam" aria-hidden="true"></div>
+<nav>
+  <button class="brand" onclick="go('home')" aria-label="ProofVault home"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#047857" stroke-width="2.5"><path d="M18.2 8c5 0 5 8 0 8-3 0-4.300-2.700-6.200-5.300C10.100 8 8.900 5.300 5.800 5.300c-5.100 0-5.100 8 0 8 3 0 4.300-2.700 6.200-5.300"/></svg>ProofVault</button>
+  <div class="pills" role="tablist">
+    <button role="tab" data-v="home" aria-selected="true">Overview</button>
+    <button role="tab" data-v="lab" aria-selected="false">Tamper Lab</button>
+    <button role="tab" data-v="scan" aria-selected="false">QR Scanner</button>
+    <button role="tab" data-v="lookup" aria-selected="false">Lookup</button>
+    <button role="tab" data-v="issuer" aria-selected="false">Issuer Portal</button>
+    <button role="tab" data-v="sec" aria-selected="false">Security</button>
+  </div>
+  <button class="ghost" onclick="go('issuer')">Connect Portal</button>
+</nav>
+<main>
+<section class="view on" id="v-home">
+  <div class="hero">
+    <div>
+      <div class="badge">150+ academic &amp; enterprise institutions</div>
+      <h1>Verifying with us <em>Beyond Boundaries</em></h1>
+      <p class="lead">Decentralized credential integrity with blockchain-anchored proofs. Hash a document in your browser, anchor it once, verify it anywhere.</p>
+      <button class="cta" onclick="go('lab')">Get Started <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="m9 18 6-6-6-6"/></svg></button>
+    </div>
+    <div class="stage" id="stage" aria-label="Three floating 3D tiles. Drag to rotate.">
+      <div class="floor"></div>
+      <div class="rig" id="rig"></div>
+      <div class="hint">Drag to rotate the vault</div>
+    </div>
+  </div>
+  <div class="band" id="band">
+    <div><b data-n="150" data-s="+">0</b><span>institutions onboarded</span></div>
+    <div><b data-n="32" data-s=" bytes">0</b><span>stored on-chain per document</span></div>
+    <div><b data-n="0" data-s=" gas">0</b><span>cost for anyone to verify</span></div>
+    <div><b data-n="64" data-s=" chars">0</b><span>SHA-256 fingerprint, unique per file</span></div>
+  </div>
+  <div class="sec-h"><h2>From paper to proof in four steps</h2><p>Each credential follows the same path, and each step can be checked independently.</p></div>
+  <div class="steps">
+    <div class="step"><i>1</i><h3>Fingerprint</h3><p>The registrar drops the diploma. Its SHA-256 digest is computed and the file itself stays private.</p></div>
+    <div class="step"><i>2</i><h3>Anchor</h3><p>The digest, issuer and timestamp are written to the ledger. It cannot be edited afterwards.</p></div>
+    <div class="step"><i>3</i><h3>Share</h3><p>A QR code is generated and printed on the credential or sent with the PDF.</p></div>
+    <div class="step"><i>4</i><h3>Verify</h3><p>An employer scans the QR or drops the file. A match means authentic; any edit means tampered.</p></div>
+  </div>
+  <div class="sec-h"><h2>Who uses it</h2></div>
+  <div class="ucs">
+    <div class="uc"><h3>Universities</h3><p>Issue tamper-proof degrees and transcripts, and revoke any that were granted in error.</p></div>
+    <div class="uc"><h3>Employers</h3><p>Check a candidate's certificate in seconds instead of waiting days for a registrar email.</p></div>
+    <div class="uc"><h3>Government bodies</h3><p>Anchor licences, permits and land records so copies can be verified by the public.</p></div>
+    <div class="uc"><h3>Certification boards</h3><p>Prove a professional certificate is current, or flag it once it has been revoked.</p></div>
+  </div>
+  <div class="sec-h"><h2>Questions evaluators ask</h2></div>
+  <div class="faq">
+    <details><summary>Is my document uploaded anywhere?</summary><p>Only the fingerprint matters to the ledger. In the live app, hashing happens in the browser, and the file is never stored by the verifier.</p></details>
+    <details><summary>What if someone changes a single letter?</summary><p>The SHA-256 changes completely. Try it in the Tamper Lab and see how many of the 64 characters flip.</p></details>
+    <details><summary>Can a credential be cancelled?</summary><p>Yes. The issuer can revoke it from the Issuer Portal. The original record stays on the ledger, but verification then reports REVOKED.</p></details>
+    <details><summary>Does verifying cost anything?</summary><p>No. Verification is a read-only lookup, so it needs no wallet, tokens or network fees.</p></details>
+    <details><summary>Is this connected to a real blockchain?</summary><p>This demo uses a simulated ledger for speed. The contract design supports Polygon or Ethereum testnets, and only the anchoring function changes.</p></details>
+  </div>
+  <div class="bigcta"><h2>See a forgery fail in ten seconds</h2><p class="sub" style="margin:0 auto 20px">Verify the genuine diploma, then its forged twin, and compare the results.</p><button class="cta" onclick="go('scan')">Open the scanner</button></div>
+</section>
+
+<section class="view" id="v-lab">
+  <h2>Change one digit. Break the proof.</h2>
+  <p class="sub">The original diploma's SHA-256 is anchored. Edit the CGPA below and the hash is recomputed live in your browser.</p>
+  <div class="grid2">
+    <div class="panel ok"><div class="row"><b>Anchored original</b><span class="tag">Registered</span></div>
+      <div style="font:700 1.2rem var(--serif);color:var(--em-d)">Alex Mercer</div>
+      <div style="color:var(--mut);font-size:.84rem;margin:2px 0 8px">B.S. Computer Science</div>
+      <div>Official CGPA <b style="font:800 1.5rem var(--serif);color:var(--em)">8.7</b></div>
+      <div class="hash" id="h-orig"></div></div>
+    <div class="panel" id="p-sub"><div class="row"><b>Submitted copy</b><span class="tag" id="t-sub">Authentic</span></div>
+      <label for="cgpa">CGPA on the submitted document</label>
+      <input type="text" id="cgpa" value="8.7" maxlength="4" inputmode="decimal" autocomplete="off">
+      <div class="hash" id="h-sub"></div></div>
+  </div>
+  <div class="verdict" id="verdict" aria-live="polite"></div>
+</section>
+
+<section class="view" id="v-scan">
+  <h2>One drop. Cryptographic certainty.</h2>
+  <p class="sub">Drop any file. It is hashed locally and never uploaded. Only a document whose hash was anchored will verify.</p>
+  <label class="drop" id="drop" for="file"><svg width="52" height="52" viewBox="0 0 24 24" fill="none" stroke="#047857" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+    <div style="font:700 1.1rem var(--serif);color:var(--em-d);margin-top:10px">Drop a file or click to choose</div></label>
+  <input type="file" id="file" hidden multiple>
+  <div class="mini" style="margin-top:14px"><button class="ghost" id="sample">Verify genuine demo diploma</button><button class="ghost" id="forged">Verify forged demo diploma</button><span id="be" style="font-size:.78rem;font-weight:700;color:var(--mut);align-self:center"></span></div>
+  <div class="mini" style="margin-top:10px"><button class="ghost" id="both">Run batch: genuine + forged</button></div>
+  <div class="verdict" id="scanv" style="max-width:640px" aria-live="polite">Waiting for a document.</div>
+</section>
+
+<section class="view" id="v-lookup">
+  <h2>Look up a credential</h2>
+  <p class="sub">Enter a ProofVault ID (like PV-7CFCE005) or a full 64-character hash to see its public record.</p>
+  <div class="sbox"><input type="text" id="lq" placeholder="PV-7CFCE005 or SHA-256 hash" aria-label="ProofVault ID or hash"><button class="cta" id="lgo" style="padding:10px 24px">Search</button></div>
+  <div class="verdict" id="lres" style="display:none" aria-live="polite"></div>
+</section>
+
+<section class="view" id="v-issuer">
+  <h2>Institutional command center</h2>
+  <p class="sub">Anchor a credential and watch the registry update. This demo keeps records in memory only.</p>
+  <div class="kpis">
+    <div class="kpi"><small>Total issued</small><div id="k1">128</div></div>
+    <div class="kpi"><small>Authentic</small><div id="k2">96</div></div>
+    <div class="kpi r"><small>Alterations</small><div id="k3">4</div></div>
+    <div class="kpi g"><small>Revoked</small><div id="k4">2</div></div>
+  </div>
+  <div class="mini"><input type="text" id="rname" placeholder="Recipient name" aria-label="Recipient name"><input type="text" id="ctype" placeholder="Credential type" value="B.S. Computer Science Diploma" aria-label="Credential type"><input type="file" id="ifile" aria-label="Credential file" style="flex:1;min-width:200px;font-size:.84rem"><button class="cta" id="anchor" style="padding:10px 22px">Anchor credential</button></div>
+  <div class="verdict" id="imsg" style="display:none" aria-live="polite"></div><img id="qr" alt="Verification QR code" style="display:none;margin-top:12px;border-radius:12px;border:1px solid var(--line)">
+  <div class="list" id="list"></div>
+  <h2 style="font-size:1.4rem;margin-top:28px">Live verification activity</h2>
+  <table><thead><tr><th>Time</th><th>Result</th><th>Document hash</th></tr></thead><tbody id="act"></tbody></table>
+</section>
+
+<section class="view" id="v-sec">
+  <h2>Built so nobody has to trust us</h2>
+  <p class="sub">The design is simple: the document stays with you, the fingerprint goes on the ledger.</p>
+  <div class="sec">
+    <div class="panel"><h3>Client-side hashing</h3><p>SHA-256 runs in your browser through the Web Crypto API. The raw file is never sent anywhere.</p></div>
+    <div class="panel"><h3>Immutable anchor</h3><p>Only the 32-byte digest, issuer and timestamp go on-chain. Revocation keeps the audit trail intact.</p></div>
+    <div class="panel"><h3>Free to verify</h3><p>Verification is a read-only contract call, so anyone can check a document with no wallet and no gas.</p></div>
+  </div>
+</section>
+</main>
+<div class="feats">
+  <div><h3>Cryptographic Fingerprint</h3><p>Client-side SHA-256 digests mean raw documents never leave local storage.</p></div>
+  <div><h3>Immutable Anchoring</h3><p>Permanent timestamps on a smart contract, out of reach of administrative edits.</p></div>
+  <div><h3>Instant Verification</h3><p>Mathematical checks backed by a public audit trail, in seconds.</p></div>
+</div>
+</div>
+<script>
+const $=id=>document.getElementById(id);
+const sha=async b=>[...new Uint8Array(await crypto.subtle.digest('SHA-256',b))].map(x=>x.toString(16).padStart(2,'0')).join('');
+const sstr=s=>sha(new TextEncoder().encode(s));
+const canon=c=>`Alex Mercer|B.S. Computer Science|CGPA ${c}`;
+/* nav */
+function go(v){document.querySelectorAll('.view').forEach(e=>e.classList.toggle('on',e.id==='v-'+v));document.querySelectorAll('.pills button').forEach(b=>b.setAttribute('aria-selected',b.dataset.v===v))}
+document.querySelectorAll('.pills button').forEach(b=>b.onclick=()=>go(b.dataset.v));
+/* motes */
+const cv=$('motes'),cx=cv.getContext('2d');let P=[];
+function rs(){cv.width=innerWidth;cv.height=innerHeight}addEventListener('resize',rs);rs();
+for(let i=0;i<40;i++)P.push({x:Math.random()*cv.width,y:Math.random()*cv.height,vx:(Math.random()-.5)*.25,vy:-Math.random()*.3-.05,s:Math.random()*2+.8,a:Math.random()*.4+.15});
+(function f(){cx.clearRect(0,0,cv.width,cv.height);for(const p of P){p.x+=p.vx;p.y+=p.vy;if(p.y<0)p.y=cv.height;if(p.x<0)p.x=cv.width;if(p.x>cv.width)p.x=0;cx.beginPath();cx.arc(p.x,p.y,p.s,0,7);cx.fillStyle=`rgba(197,160,89,${p.a})`;cx.fill()}requestAnimationFrame(f)})();
+/* 3D tiles: real thickness from stacked layers */
+const rig=$('rig');
+const icons={1:'<path d="M12 2 2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>',2:'<path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/>',3:'<rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>'};
+const names={1:'Blockchain anchor',2:'ProofVault ID',3:'SHA-256 digest'};
+const edge={1:'#0a9a6d',2:'#d9cfb4',3:'#053d2e'};
+const T=[1,2,3].map(n=>{
+  const sh=document.createElement('div');sh.className='shadow';rig.appendChild(sh);
+  const t=document.createElement('div');t.className='tile t'+n;
+  for(let i=0;i<10;i++){const l=document.createElement('div');l.className='slab';l.style.background=edge[n];l.style.transform=`translateZ(${-i*1.6}px)`;t.appendChild(l)}
+  const top=document.createElement('div');top.className='slab top';top.style.transform='translateZ(2px)';
+  const ic=n===2?'#064E3B':'#fff';
+  top.innerHTML=`<svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="${ic}" stroke-width="1.8" style="transform:translateZ(10px)">${icons[n]}</svg><span>${names[n]}</span>`;
+  t.appendChild(top);rig.appendChild(t);return{t,sh,n}});
+let ry=-28,rx=58,vy=0,drag=false,lx=0,ly=0,tx=0,ty=0,time=0;
+const st=$('stage');
+st.addEventListener('pointerdown',e=>{drag=true;lx=e.clientX;ly=e.clientY;st.setPointerCapture(e.pointerId)});
+st.addEventListener('pointermove',e=>{if(drag){vy=(e.clientX-lx)*.35;ry+=vy;rx=Math.max(35,Math.min(80,rx-(e.clientY-ly)*.3));lx=e.clientX;ly=e.clientY}else{const r=st.getBoundingClientRect();tx=((e.clientX-r.left)/r.width-.5)*14;ty=((e.clientY-r.top)/r.height-.5)*-10}});
+st.addEventListener('pointerup',()=>drag=false);st.addEventListener('pointerleave',()=>{tx=ty=0});
+const still=matchMedia('(prefers-reduced-motion:reduce)').matches;
+(function loop(){
+  time+=.016;if(!drag){vy*=.94;ry+=vy+(still?0:.06)}
+  const lift={1:90,2:30,3:-30},off={1:[-30,-40],2:[20,0],3:[-20,40]};
+  T.forEach(({t,sh,n},i)=>{
+    const bob=still?0:Math.sin(time*1.3+i*1.2)*9;
+    t.style.transform=`translate3d(${off[n][0]}px,${off[n][1]}px,${lift[n]+bob}px)`;
+    sh.style.transform=`translate3d(${off[n][0]}px,${off[n][1]}px,-70px) scale(${1-(lift[n]+bob)/700})`;
+    sh.style.opacity=.9-(lift[n]+bob)/260});
+  rig.style.transform=`rotateX(${rx+ty}deg) rotateZ(${ry+tx}deg)`;
+  requestAnimationFrame(loop)})();
+/* Tamper lab */
+const ORIG='8.7';let origH='';
+async function lab(){
+  if(!origH){origH=await sstr(canon(ORIG));$('h-orig').textContent=origH}
+  const v=$('cgpa').value.trim(),h=await sstr(canon(v));
+  let diff=0,out='';for(let i=0;i<h.length;i++){if(h[i]!==origH[i]){diff++;out+=`<b>${h[i]}</b>`}else out+=h[i]}
+  $('h-sub').innerHTML=out;const ok=h===origH;
+  $('p-sub').className='panel '+(ok?'ok':'bad');$('t-sub').textContent=ok?'Authentic':'Tampered';$('t-sub').className='tag'+(ok?'':' bad');
+  $('verdict').className='verdict'+(ok?'':' bad');
+  $('verdict').textContent=ok?'Hash matches the anchored record. Document verified.':`Hash mismatch: ${diff} of 64 characters changed (${Math.round(diff/64*100)}%) from a single edit. Document has been altered.`}
+$('cgpa').oninput=lab;lab();
+/* Scanner (backend) */
+const api=async(path,fd)=>{const r=await fetch(path,{method:'POST',body:fd});return{status:r.status,data:await r.json()}};
+async function check(blob,label){
+  const el=$('scanv');el.className='verdict';el.textContent='Hashing and checking the ledger...';
+  const fd=new FormData();fd.append('file',blob,label);
+  try{const {data:d}=await api('/api/verify',fd),ok=d.isAuthentic;
+    el.className='verdict'+(ok?'':' bad');
+    const rec=d.record?`<br>Recipient: <b id="rn"></b> · ${d.record.credentialType}<br>Block ${d.record.blockNumber.toLocaleString()} · ${d.record.proofVaultId}`:(d.auditAlertId?`<br>Audit alert ${d.auditAlertId}`:'');
+    el.innerHTML=`<b>${d.status.replace(/_/g,' ')}</b><br>${d.message}${rec}<div class="hash" style="${ok?'':'background:#fee2e2;color:#991b1b'}">${label}<br>${d.docHash}</div>`;
+    if(d.record)$('rn').textContent=d.record.recipientName;
+  }catch(e){el.className='verdict bad';el.textContent='Backend offline. Start it with: npm start, then open http://localhost:5000'}}
+$('file').onchange=e=>{const f=e.target.files[0];if(f)check(f,f.name)};
+const demoFile=async n=>check(await (await fetch('/demo/'+n)).blob(),n);
+$('sample').onclick=()=>demoFile('alex_mercer_diploma.pdf');
+$('forged').onclick=()=>demoFile('alex_mercer_diploma_FORGED.pdf');
+fetch('/api/health').then(r=>r.json()).then(h=>$('be').textContent='Backend online · '+h.mode).catch(()=>$('be').textContent='Backend offline');
+const dz=$('drop');['dragover','dragenter'].forEach(ev=>dz.addEventListener(ev,e=>{e.preventDefault();dz.classList.add('over')}));
+['dragleave','drop'].forEach(ev=>dz.addEventListener(ev,()=>dz.classList.remove('over')));
+dz.addEventListener('drop',e=>{e.preventDefault();const f=e.dataTransfer.files[0];if(f)check(f,f.name)});
+/* Deep link from QR: /?hash=... */
+const qh=new URLSearchParams(location.search).get('hash');
+if(qh){go('scan');const fd=new FormData();fd.append('documentHash',qh);api('/api/verify',fd).then(({data:d})=>{const el=$('scanv');el.className='verdict'+(d.isAuthentic?'':' bad');el.innerHTML=`<b>${d.status.replace(/_/g,' ')}</b><br>${d.message}<div class="hash">${d.docHash}</div>`})}
+/* Issuer (backend) */
+const rowHtml=r=>`<span><b></b> · <code>${r.proofVaultId}</code> ${r.revoked?'<span class="pill bad">revoked</span>':''}</span><span class="mini" style="align-items:center;gap:8px"><span style="color:var(--mut)">Block ${r.blockNumber.toLocaleString()}</span>${r.revoked?'':`<button class="ghost sm" data-rev="${r.docHash}">Revoke</button>`}</span>`;
+async function refresh(){
+  try{const d=await (await fetch('/api/records')).json();
+    $('k1').textContent=d.metrics.totalIssued;$('k2').textContent=d.metrics.authenticVerified;$('k3').textContent=d.metrics.tamperAlterationsDetected;$('k4').textContent=d.metrics.revoked;
+    $('list').innerHTML='';d.records.forEach(r=>{const x=document.createElement('div');x.className='rec';x.innerHTML=rowHtml(r);x.querySelector('b').textContent=r.recipientName;$('list').appendChild(x)});
+    const a=await (await fetch('/api/activity')).json();$('act').innerHTML=a.map(e=>`<tr><td>${new Date(e.time).toLocaleTimeString()}</td><td><span class="pill ${e.status==='AUTHENTIC'?'':'bad'}">${e.status.replace(/_/g,' ')}</span></td><td style="font:500 .72rem var(--mono)">${e.hash.slice(0,20)}...</td></tr>`).join('')||'<tr><td colspan=3>No verifications yet.</td></tr>'}catch(e){}}
+document.querySelectorAll('.pills button').forEach(b=>b.addEventListener('click',()=>{if(b.dataset.v==='issuer')refresh()}));
+$('anchor').onclick=async()=>{
+  const n=$('rname').value.trim(),f=$('ifile').files[0],m=$('imsg');
+  if(!n)return $('rname').focus();
+  if(!f){m.style.display='block';m.className='verdict bad';m.textContent='Choose the credential file to anchor.';return}
+  const fd=new FormData();fd.append('file',f);fd.append('recipientName',n);fd.append('credentialType',$('ctype').value);
+  try{const {data:d}=await api('/api/issue',fd);m.style.display='block';
+    if(d.success){m.className='verdict';m.innerHTML=`Anchored as <b>${d.record.proofVaultId}</b> in block ${d.record.blockNumber.toLocaleString()}.<div class="hash">tx ${d.record.txHash}</div>`;$('qr').src=d.record.qrCodeDataUrl;$('qr').style.display='block';$('rname').value='';refresh()}
+    else{m.className='verdict bad';m.textContent=d.error}
+  }catch(e){m.style.display='block';m.className='verdict bad';m.textContent='Backend offline. Run npm start.'}};
+
+/* counters (once, on first view) */
+const io=new IntersectionObserver(es=>es.forEach(e=>{if(!e.isIntersecting)return;io.disconnect();e.target.querySelectorAll('b').forEach(b=>{const n=+b.dataset.n,t0=performance.now();(function f(t){const p=Math.min(1,(t-t0)/1200);b.textContent=Math.round(n*(1-Math.pow(1-p,3)))+b.dataset.s;if(p<1)requestAnimationFrame(f)})(t0)})}),{threshold:.4});io.observe($('band'));
+/* batch verify */
+const pillOf=d=>`<span class="pill ${d.isAuthentic?'':'bad'}">${d.status.replace(/_/g,' ')}</span>`;
+async function checkMany(files){
+  const el=$('scanv');el.className='verdict';el.textContent='Checking '+files.length+' files...';let rows='';
+  for(const f of files){const fd=new FormData();fd.append('file',f,f.name);
+    try{const {data:d}=await api('/api/verify',fd);rows+=`<tr><td></td><td>${pillOf(d)}</td><td style="font:500 .7rem var(--mono)">${d.docHash.slice(0,16)}...</td></tr>`;rows=rows.replace('<td></td>',`<td>${f.name.replace(/[<>&]/g,'')}</td>`)}catch(e){rows+=`<tr><td>${f.name}</td><td colspan=2>Backend offline</td></tr>`}}
+  el.innerHTML=`<b>Batch result</b><table><thead><tr><th>File</th><th>Result</th><th>Hash</th></tr></thead><tbody>${rows}</tbody></table>`}
+$('file').onchange=e=>{const fs=[...e.target.files];fs.length>1?checkMany(fs):fs[0]&&check(fs[0],fs[0].name)};
+dz.addEventListener('drop',e=>{const fs=[...e.dataTransfer.files];if(fs.length>1){e.stopImmediatePropagation();checkMany(fs)}},true);
+$('both').onclick=async()=>{const g=n=>fetch('/demo/'+n).then(r=>r.blob()).then(b=>new File([b],n));checkMany([await g('alex_mercer_diploma.pdf'),await g('alex_mercer_diploma_FORGED.pdf')])};
+/* lookup */
+async function look(){
+  const q=$('lq').value.trim(),el=$('lres');if(!q)return $('lq').focus();el.style.display='block';
+  try{const r=await fetch('/api/record/'+encodeURIComponent(q));const d=await r.json();
+    if(!r.ok){el.className='verdict bad';el.textContent=d.error;return}
+    const x=d.record;el.className='verdict'+(x.revoked?' bad':'');
+    el.innerHTML=`<b id="ln"></b> · ${x.credentialType}<br>Issued by ${x.issuerName} · Block ${x.blockNumber.toLocaleString()} · ${x.revoked?'REVOKED':'Active'}<div class="hash">${x.docHash}<br>tx ${x.txHash}</div>`;$('ln').textContent=x.recipientName
+  }catch(e){el.className='verdict bad';el.textContent='Backend offline. Run npm start.'}}
+$('lgo').onclick=look;$('lq').onkeydown=e=>e.key==='Enter'&&look();
+/* revoke */
+$('list').addEventListener('click',async e=>{const h=e.target.dataset.rev;if(!h||!confirm('Revoke this credential? Verification will report REVOKED.'))return;
+  await fetch('/api/revoke',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({documentHash:h,reason:'Revoked by issuer'})});refresh()});
+</script>
+</body>
+</html>
